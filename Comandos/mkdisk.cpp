@@ -1,5 +1,9 @@
 #include "../DefinicionClases/mkdisk.h"
 
+void mkdisk::analizador_mkdisk(std::string texto) {
+    std::cout<<"Comando en mkdisk: "<<texto<<std::endl;
+}
+
 void mkdisk::crear_disco(std::string ruta)
 {
     std::cout<<"Simon"<<std::endl;

@@ -6,24 +6,25 @@
 class fdisk
 {
 private:
-    /* data */
     int tamanio;
     std::string unidades;
     std::string ruta;
     std::string nombre;
 
+    void analizador_fdisk(std::string);
+
 public:
-    fdisk(/* args */);
+    fdisk(std::string);
     ~fdisk();
 };
 
-fdisk::fdisk(/* args */)
+fdisk::fdisk(std::string texto)
 {
+    this->analizador_fdisk(texto);
 }
 
 fdisk::~fdisk()
 {
 }
-
 
 #endif

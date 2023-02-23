@@ -1,6 +1,7 @@
 #include "../DefinicionClases/execute.h"
 
-std::string execute::split_text(std::string texto, char delimitador, int posicion) {
+std::string execute::split_text(std::string texto, char delimitador, int posicion)
+{
     std::string aux;
     std::stringstream input_stringstream(texto);
     for (int i = 0; i < posicion; i++)
@@ -13,59 +14,70 @@ std::string execute::split_text(std::string texto, char delimitador, int posicio
     return aux;
 }
 
-std::string execute::quitar_espacios_blanco(std::string texto) {
+std::string execute::limpiar_texto(std::string texto)
+{
     std::regex saltos("\n|\r|\t");
-    return regex_replace(texto, saltos, ""); 
+    return regex_replace(texto, saltos, "");
 }
 
-void execute::analizador(std::string comando) {
-    std::regex execu("execute");
-    std::smatch ext;
+std::string execute::reconocer_execute(std::string texto) // devuelve la ruta
+{
+    std::smatch ptrn;
+    std::regex_search(texto, ptrn, std::regex("execute"));
 
-    std::regex path(">path");
-    std::smatch pt;
-
-    //std::cout << boolalpha;
-
-    if (std::regex_search(comando, ext, execu))
+    if (ptrn.str().compare("execute") == 0)
     {
-        if (std::regex_search(comando, pt, path))
+        std::smatch pth;
+        if (std::regex_search(texto, pth, std::regex("path")) == false)
         {
-            std::string ruta = this->split_text(comando, '=', 2);
-            std::ifstream archivo(ruta, std::ios::in);
-
-            if (archivo.fail())
-            {
-                std::cout << "Error" << std::endl;
-            }
-            else
-            {
-                std::string texto;
-                while (!archivo.eof())
-                {
-                    getline(archivo, texto);
-                    texto = quitar_espacios_blanco(texto);
-                    if (texto.compare("mkdisk") == 0)
-                    {
-                        mkdisk mk("disco.dsk");
-                    } else
-                    if (texto.compare("rep") == 0)
-                    {
-                        rep rp("disco.dsk");
-                    }
-                }
-            }
-
-            archivo.close();
+            std::cout << "No viene la ruta" << std::endl;
         }
-        else
-        {
-            std::cout << "Error comando path" << std::endl;
-        }
+        return this->split_text(texto, '=', 2);
+    }
+    return "False";
+}
+
+void execute::comandos(std::string texto)
+{
+    std::smatch comando;
+    std::regex_search(texto, comando, std::regex("(mkdisk|fdisk|rep)"));
+
+    if (comando.str().compare("mkdisk") == 0)
+    {
+        mkdisk mk(texto);
+    }
+    else if (comando.str().compare("fdisk") == 0)
+    {
+        fdisk fd(texto);
+    }
+    else if (comando.str().compare("rep") == 0)
+    {
+        rep re(texto);
     }
     else
     {
-        std::cout << "Error comando execute" << std::endl;
+        std::cout << "No se reconoce algun comando" << std::endl;
     }
 }
 
+void execute::analizador_execute(std::string comando)
+{
+    std::string ruta = this->reconocer_execute(comando);
+    if (ruta.compare("False") != 0)
+    {
+        std::ifstream archivo(ruta, std::ios::in);
+        if (!archivo.fail())
+        {
+            std::string texto;
+            while (!archivo.eof())
+            {
+                getline(archivo, texto);
+                texto = limpiar_texto(texto);
+                this->comandos(texto);
+            }
+        }
+        archivo.close();
+    } else {
+        std::cout<<"Error de comando"<<std::endl;
+    }
+}

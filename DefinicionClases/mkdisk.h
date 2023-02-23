@@ -13,6 +13,7 @@ private:
     void crear_disco(std::string);
     int numero_random();
     void escribir_mbr(std::string, MBR);
+    void analizador_mkdisk(std::string);
 
     int tamanio;
     std::string unidades;
@@ -23,9 +24,9 @@ public:
     ~mkdisk();
 };
 
-mkdisk::mkdisk(std::string ruta)
+mkdisk::mkdisk(std::string texto)
 {
-    this->crear_disco(ruta);
+    this->analizador_mkdisk(texto);
 }
 
 mkdisk::~mkdisk()

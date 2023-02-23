@@ -1,5 +1,9 @@
 #include "../DefinicionClases/rep.h"
 
+void rep::analizador_rep(std::string texto) {
+    std::cout<<"Comando en rep: "<<texto<<std::endl;
+}
+
 void rep::mostrar(std::string ruta)
 {
     

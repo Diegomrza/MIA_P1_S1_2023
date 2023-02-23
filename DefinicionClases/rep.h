@@ -10,17 +10,19 @@
 class rep
 {
 private:
-    /* data */
+    void analizador_rep(std::string);
+    
 public:
     rep(std::string);
     ~rep();
+
 
     void mostrar(std::string);
 };
 
 rep::rep(std::string ruta)
 {
-    this->mostrar(ruta);
+    this->analizador_rep(ruta);
 }
 
 rep::~rep()
