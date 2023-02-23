@@ -31,6 +31,7 @@ std::string execute::reconocer_execute(std::string texto) // devuelve la ruta
         if (std::regex_search(texto, pth, std::regex("path")) == false)
         {
             std::cout << "No viene la ruta" << std::endl;
+            return "False";
         }
         return this->split_text(texto, '=', 2);
     }

@@ -14,10 +14,11 @@ private:
     int numero_random();
     void escribir_mbr(std::string, MBR);
     void analizador_mkdisk(std::string);
+    std::string split_text_mkdisk(std::string, char, int);
 
-    int tamanio;
-    std::string unidades;
-    std::string ruta;
+    int tamanio;            //Obligatorio
+    std::string unidades = "M";   //Opcional => K o M
+    std::string ruta;       //Obligatorio
 
 public:
     mkdisk(std::string);

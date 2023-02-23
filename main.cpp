@@ -10,7 +10,7 @@ int main()
     std::cout << "Ingrese un comando:" << std::endl;
     std::string comando;
     getline(std::cin, comando);
-
+    std::cout<<std::endl;
     execute nuevo(comando);
 
     return 0;
