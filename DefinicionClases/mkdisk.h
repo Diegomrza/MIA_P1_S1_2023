@@ -6,15 +6,20 @@
 #include <iostream>
 #include "../DefinicionStructs/structMBR.h"
 #include "chrono"
+#include <stdlib.h>
+#include <time.h>
+#include <sys/stat.h> //Para crear carpetas con mkdir
 
 class mkdisk
 {
 private:
-    void crear_disco(std::string);
+    void crear_disco(std::string, int, std::string); //Parámetros => ruta, tamaño, unidad
     int numero_random();
     void escribir_mbr(std::string, MBR);
     void analizador_mkdisk(std::string);
     std::string split_text_mkdisk(std::string, char, int);
+
+    std::string errores_mkdisk(int);
 
     int tamanio;            //Obligatorio
     std::string unidades = "M";   //Opcional => K o M

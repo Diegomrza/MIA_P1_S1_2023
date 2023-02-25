@@ -12,6 +12,6 @@ int main()
     getline(std::cin, comando);
     std::cout<<std::endl;
     execute nuevo(comando);
-
+    //      execute >path=prueba.eea
     return 0;
 }
