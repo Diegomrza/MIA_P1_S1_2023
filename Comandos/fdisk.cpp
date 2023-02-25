@@ -95,18 +95,13 @@ void fdisk::analizador_fdisk(std::string texto)
 
     // Parámetros obligatorios
     (std::regex_search(texto, std::regex(">size"))) ? bandera = this->verify_tamanio(texto) : bandera = false;
-
     (std::regex_search(texto, std::regex(">path"))) ? bandera = this->verify_ruta(texto) : bandera = false;
-
     (std::regex_search(texto, std::regex(">name"))) ? bandera = this->verify_nombre(texto) : bandera = false;
     
     // Parámetros opcionales
     if (std::regex_search(texto, std::regex(">type"))) { bandera = this->verify_tipo(texto); }
-
     if (std::regex_search(texto, std::regex(">unit"))) { bandera = this->verify_unidades(texto); }
-
     if (std::regex_search(texto, std::regex(">fit"))) { bandera = this->verify_ajuste(texto); }
-
     if (std::regex_search(texto, std::regex(">delete"))) { bandera = this->verify_eliminar(texto); }
 
     if (bandera == false) {
@@ -119,8 +114,20 @@ void fdisk::analizador_fdisk(std::string texto)
         std::cout<<"Tipo: "<<this->tipo<<std::endl;
         std::cout<<"Unidades: "<<this->unidades<<std::endl;
         std::cout<<"Ajuste: "<<this->ajuste<<std::endl;
+        this->crear_particion();
     }
     std::cout<<"\n"<<std::endl;
+}
+
+void fdisk::crear_particion() {
+    structParticion nuevo;
+    nuevo.tamanio = this->tamanio;
+    strcpy(nuevo.ruta, this->ruta.c_str());
+    strcpy(nuevo.nombre, this->nombre.c_str());
+    strcpy(nuevo.tipo, this->tipo.c_str());
+    strcpy(nuevo.unidades, this->unidades.c_str());
+    strcpy(nuevo.ajuste, this->ajuste.c_str());
+
 }
 
 std::string fdisk::split_text_fdisk(std::string texto, char delimitador, int posicion) {

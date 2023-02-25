@@ -3,6 +3,7 @@
 
 #include <string>
 #include <regex>
+#include "../DefinicionStructs/structParticion.h"
 
 class fdisk
 {
@@ -18,6 +19,7 @@ private:
 
     void analizador_fdisk(std::string);
     std::string split_text_fdisk(std::string, char, int);
+    void crear_particion();
 
     bool verify_tamanio(std::string);
     bool verify_ruta(std::string);

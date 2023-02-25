@@ -19,7 +19,12 @@ private:
     void analizador_mkdisk(std::string);
     std::string split_text_mkdisk(std::string, char, int);
 
+    bool verify_tamanio_mkdisk(std::string);
+    bool verify_unidades_mkdisk(std::string);
+    bool verify_ruta_mkdisk(std::string);
+
     std::string errores_mkdisk(int);
+    void mensaje_error_crear_disco();
 
     int tamanio;            //Obligatorio
     std::string unidades = "M";   //Opcional => K o M

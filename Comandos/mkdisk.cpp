@@ -11,68 +11,63 @@ std::string mkdisk::split_text_mkdisk(std::string texto, char delimitador, int p
     return aux;
 }
 
+bool mkdisk::verify_tamanio_mkdisk(std::string texto) {
+    std::smatch tm;
+    if (std::regex_search(texto, tm, std::regex(">size=[1-9][0-9]*")) == true) {
+        this->tamanio = stoi(this->split_text_mkdisk(tm.str(), '=', 2));
+        return true;
+    } else {
+        std::cout << this->errores_mkdisk(3) << std::endl;
+        return false;
+    }
+}
+
+bool mkdisk::verify_unidades_mkdisk(std::string texto) {
+    std::smatch un;
+    if (std::regex_search(texto, un, std::regex(">unit=(M|K|m|k)")) == true) {
+        if (un.str().compare(">unit=K") == 0 || un.str().compare(">unit=k") == 0) {
+            this->unidades = "K";
+        } else if (un.str().compare(">unit=M") == 0 || un.str().compare(">unit=m") == 0) {
+            this->unidades = "M";
+        } else {
+            std::cout << this->errores_mkdisk(4) << std::endl;
+            return false;
+        }
+    }
+    return true;
+}
+
+bool mkdisk::verify_ruta_mkdisk(std::string texto) {
+    std::smatch ru;
+    if (std::regex_search(texto, ru, std::regex(">path=((/\\w+)+\\.dsk|\"(/(\\w[ ]?)+)+\\.dsk\"|\\w+\\.dsk|\"(\\w[ ]?)+\\.dsk\")")) == true) {
+        this->ruta = this->split_text_mkdisk(ru.str(), '=', 2);
+        return true;
+    } else {
+        std::cout << this->errores_mkdisk(5) << std::endl;
+        return false;
+    }
+}
+
 void mkdisk::analizador_mkdisk(std::string texto)
 {
     std::cout << "Comando mkdisk: " << texto << std::endl;
-    std::smatch tm; // tamaño
-    std::smatch un; // unidad
-    std::smatch ru; // ruta
-
     bool bandera = true; // si es falsa no se creará el disco
+    (std::regex_search(texto, std::regex(">size"))) ? bandera = this->verify_tamanio_mkdisk(texto): bandera = false;
+    (std::regex_search(texto, std::regex(">path"))) ? bandera = this->verify_ruta_mkdisk(texto): bandera = false;
+    (bandera == true) ? this->crear_disco(this->ruta, this->tamanio, this->unidades): this->mensaje_error_crear_disco();
+}
 
-    if (std::regex_search(texto, un, std::regex(">unit=(M|K|m|k)")) == true)
-    {
-        
-        if (un.str().compare(">unit=K") == 0 || un.str().compare(">unit=k") == 0)
-        {
-            this->unidades = "K";
-        }
-        else if (un.str().compare(">unit=M") == 0 || un.str().compare(">unit=m") == 0)
-        {
-            this->unidades = "M";
-        }
-        else
-        {
-            std::cout << this->errores_mkdisk(4) << std::endl;
-            bandera = false;
-        }
-    }
-
-    if (std::regex_search(texto, tm, std::regex(">size=[1-9][0-9]*")) == true)
-    {
-        // std::cout << "Size: " << stoi(tm.str()) << std::endl;
-        this->tamanio = stoi(this->split_text_mkdisk(tm.str(), '=', 2));
-        if (std::regex_search(texto, ru, std::regex(">path=((/\\w+)+\\.dsk|\"(/(\\w[ ]?)+)+\\.dsk\"|\\w+\\.dsk|\"(\\w[ ]?)+\\.dsk\")")) == true)
-        {
-            std::cout << "Ruta: " << this->split_text_mkdisk(ru.str(), '=', 2) << std::endl;
-            this->ruta = this->split_text_mkdisk(ru.str(), '=', 2);
-        }
-        else
-        {
-            std::cout << this->errores_mkdisk(5) << std::endl;
-            bandera = false;
-        }
-    }
-    else
-    {
-        std::cout << this->errores_mkdisk(3) << std::endl;
-        bandera = false;
-    }
-
-    if (bandera)
-    {
-        this->crear_disco(this->ruta, this->tamanio, this->unidades);
-    }
-    else
-    {
-        std::cout << "No se pudo crear el disco" << std::endl;
-    }
+void mkdisk::mensaje_error_crear_disco() {
+    std::cout << "No se pudo crear el disco" << std::endl;
 }
 
 void mkdisk::crear_disco(std::string ruta, int tamanio, std::string unidad)
 {
     std::string directorio = regex_replace(ruta, std::regex("\\w+\\.dsk"), "");
-    std::cout<<mkdir(directorio.c_str(), 0777)<<std::endl;
+    if(mkdir(directorio.c_str(), 0777)!= 0){
+        std::cout<<"Error al crear el directorio en: "<<directorio<<std::endl;
+        return;
+    }
 
     std::FILE *fichero = fopen(ruta.c_str(), "w+b");
     if (fichero != NULL)
