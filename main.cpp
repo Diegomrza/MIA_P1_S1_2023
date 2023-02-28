@@ -4,10 +4,7 @@
 
 int main()
 {
-    std::cout << "Diego Abraham Robles Meza" << std::endl;
-    std::cout << "201901429" << std::endl;
-
-    std::cout << "Ingrese un comando:" << std::endl;
+    std::cout << "Diego Abraham Robles Meza\n201901429\nIngrese un comando:" << std::endl;
     std::string comando;
     getline(std::cin, comando);
     std::cout<<std::endl;
