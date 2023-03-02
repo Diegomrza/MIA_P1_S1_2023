@@ -51,7 +51,7 @@ bool fdisk::verify_tipo(std::string texto) //Opcional
 bool fdisk::verify_ajuste(std::string texto) //Opcional
 {
     std::smatch aj; // Ajuste
-    if (std::regex_search(texto, aj, std::regex(">fit=(BF|FF|WF|bf|ff|wf)"))) {
+    if (std::regex_search(texto, aj, std::regex(">fit=(BF|FF|WF)"))) {
         this->ajuste = this->split_text_fdisk(aj.str(), '=', 2);
         return true;
     } else {

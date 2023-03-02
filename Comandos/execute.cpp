@@ -41,7 +41,7 @@ std::string execute::reconocer_execute(std::string texto) // devuelve la ruta
 void execute::comandos(std::string texto)
 {
     std::smatch comando;
-    std::regex_search(texto, comando, std::regex("(mkdisk|fdisk|rep)"));
+    std::regex_search(texto, comando, std::regex("(mkdisk|fdisk|rep|rmdisk)"));
 
     if (comando.str().compare("mkdisk") == 0)
     {
@@ -54,6 +54,9 @@ void execute::comandos(std::string texto)
     else if (comando.str().compare("rep") == 0)
     {
         rep re(texto);
+    } else if (comando.str().compare("rmdisk") == 0) 
+    {
+        rmdisk rm(texto);
     }
     else
     {

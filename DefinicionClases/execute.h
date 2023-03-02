@@ -9,6 +9,7 @@
 #include "../Comandos/mkdisk.cpp"
 #include "../Comandos/fdisk.cpp"
 #include "../Comandos/rep.cpp"
+#include "../Comandos/rmdisk.cpp"
 
 class execute
 {

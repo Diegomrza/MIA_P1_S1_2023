@@ -13,22 +13,29 @@
 class mkdisk
 {
 private:
-    void crear_disco(std::string, int, std::string); //Parámetros => ruta, tamaño, unidad
-    int numero_random();
-    void escribir_mbr(std::string, MBR);
+    //Funcion principal
     void analizador_mkdisk(std::string);
-    std::string split_text_mkdisk(std::string, char, int);
 
+    //Funciones de verificacion de parametros
     bool verify_tamanio_mkdisk(std::string);
     bool verify_unidades_mkdisk(std::string);
     bool verify_ruta_mkdisk(std::string);
+    bool verify_fit_mkdisk(std::string);
 
-    std::string errores_mkdisk(int);
-    void mensaje_error_crear_disco();
+    //Funciones de ayuda
+    std::string split_text_mkdisk(std::string, char, int);
+    int numero_random();
+    void escribir_mbr(std::string, MBR);
+    void crear_disco(std::string, int, std::string); // Parámetros => ruta, tamaño, unidad
 
-    int tamanio;            //Obligatorio
-    std::string unidades = "M";   //Opcional => K o M
-    std::string ruta;       //Obligatorio
+    std::string errores_mkdisk(int);  //  Devuelve el mensaje de error correspondiente
+    void mensaje_error_crear_disco(); //  Mensaje de error al crear el disco
+
+    //Parametros
+    std::string fit;
+    int tamanio;
+    std::string unidades;
+    std::string ruta;
 
 public:
     mkdisk(std::string);
@@ -37,6 +44,10 @@ public:
 
 mkdisk::mkdisk(std::string texto)
 {
+    this->tamanio = 0;    // size => Obligatorio
+    this->unidades = "M"; // unit => Opcional => K o M
+    this->ruta = "";      // path => Obligatorio
+    this->fit = "FF";     // fit => Opcional => FF, BF, WF
     this->analizador_mkdisk(texto);
 }
 
