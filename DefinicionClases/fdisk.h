@@ -8,27 +8,31 @@
 class fdisk
 {
 private:
-    int tamanio;          // Obligatorio
+    int tamanio;          // Obligatorio al crear
     std::string ruta;     // Obligatorio
     std::string nombre;   // Obligatorio
 
-    std::string tipo = "P";     // Opcional
-    std::string ajuste = "WF";   // Opcional
+    std::string unidades; // Opcional
+    std::string tipo;     // Opcional
+    std::string ajuste;   // Opcional
     std::string eliminar; // Opcional
-    std::string unidades = "K"; // Opcional
+    std::string agregar; //Opcional
+    
 
     void analizador_fdisk(std::string);
     std::string split_text_fdisk(std::string, char, int);
+    std::string toLower_fdisk(std::string);
     void crear_particion();
 
-    bool verify_tamanio(std::string);
-    bool verify_ruta(std::string);
-    bool verify_nombre(std::string);
+    bool verificar_tamanio(std::string);
+    bool verificar_ruta(std::string);
+    bool verificar_nombre(std::string);
 
-    bool verify_tipo(std::string);
-    bool verify_ajuste(std::string);
-    bool verify_eliminar(std::string);
-    bool verify_unidades(std::string);
+    bool verificar_tipo(std::string);
+    bool verificar_ajuste(std::string);
+    bool verificar_eliminar(std::string);
+    bool verificar_unidades(std::string);
+    bool verificar_agregar(std::string);
 
 public:
     fdisk(std::string);
@@ -37,6 +41,15 @@ public:
 
 fdisk::fdisk(std::string texto)
 {
+    this->tamanio = 0;
+    this->ruta = "";
+    this->nombre = "";
+
+    this->unidades = "K";
+    this->tipo = "P";
+    this->ajuste = "WF";
+    this->eliminar = "";
+    this->agregar = "";
     this->analizador_fdisk(texto);
 }
 

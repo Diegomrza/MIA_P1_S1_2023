@@ -3,6 +3,7 @@
 
 struct structParticion
 {
+    char status = '0';
     int tamanio = 0;
     char ruta[25] = "";
     char nombre[25] = "";

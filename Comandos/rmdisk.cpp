@@ -2,18 +2,22 @@
 
 void rmdisk::analizador_rmdisk(std::string comando)
 {
-    std::cout << "Comando: " << comando << std::endl;
     bool bandera = false;
-    (std::regex_search(comando, std::regex(">path")) == true) ? bandera = this->verify_ruta_rmdisk(comando) : bandera = false;
-    if (bandera) {
+    std::string aux = this->toLower_rmdisk(comando);
+
+    (std::regex_search(aux, std::regex(">path")) == true) ? bandera = this->verificar_ruta_rmdisk(comando) : bandera = false;
+    if (bandera)
+    {
         this->eliminar_disco(this->ruta);
     }
 }
 
-bool rmdisk::verify_ruta_rmdisk(std::string texto)
+bool rmdisk::verificar_ruta_rmdisk(std::string texto)
 {
     std::smatch ru;
-    if (std::regex_search(texto, ru, std::regex(">path=((/\\w+)+\\.dsk|\"(/(\\w[ ]?)+)+\\.dsk\"|\\w+\\.dsk|\"(\\w[ ]?)+\\.dsk\")")) == true) {
+
+    if (std::regex_search(texto, ru, std::regex("=((/\\w+)+\\.dsk|\"(/(\\w[ ]?)+)+\\.dsk\"|\\w+\\.dsk|\"(\\w[ ]?)+\\.dsk\")")) == true)
+    {
         this->ruta = this->split_text_rmdisk(ru.str(), '=', 2);
         return true;
     }
@@ -23,7 +27,8 @@ bool rmdisk::verify_ruta_rmdisk(std::string texto)
 
 bool rmdisk::eliminar_disco(std::string ruta)
 {
-    if (std::remove(ruta.c_str()) == 0) {
+    if (std::remove(ruta.c_str()) == 0)
+    {
         std::cout << "Disco eliminado" << std::endl;
         return true;
     }
@@ -31,12 +36,23 @@ bool rmdisk::eliminar_disco(std::string ruta)
     return false;
 }
 
-std::string rmdisk::split_text_rmdisk(std::string texto, char delimitador, int posicion){
+std::string rmdisk::split_text_rmdisk(std::string texto, char delimitador, int posicion)
+{
     std::string aux;
     std::stringstream input_stringstream(texto);
     for (int i = 0; i < posicion; i++)
     {
         getline(input_stringstream, aux, delimitador);
+    }
+    return aux;
+}
+
+std::string rmdisk::toLower_rmdisk(std::string texto)
+{
+    std::string aux;
+    for (int i = 0; i < texto.length(); i++)
+    {
+        aux += tolower(texto[i]);
     }
     return aux;
 }

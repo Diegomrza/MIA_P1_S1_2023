@@ -10,7 +10,8 @@ private:
     std::string ruta;
     void analizador_rmdisk(std::string);
     std::string split_text_rmdisk(std::string, char, int);
-    bool verify_ruta_rmdisk(std::string);
+    std::string toLower_rmdisk(std::string);
+    bool verificar_ruta_rmdisk(std::string);
     bool eliminar_disco(std::string);
     
 public:

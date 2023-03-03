@@ -10,5 +10,8 @@ int main()
     std::cout<<std::endl;
     execute nuevo(comando);
     //      execute >path=prueba.eea
+    //      ExEcUtE >PaTh=prueba.eea
+    //      EXECUTE >PATH=creaciondiscos.eea
+    //      EXECUTE >PATH=eliminaciondiscos.eea 
     return 0;
 }

@@ -17,19 +17,19 @@ private:
     void analizador_mkdisk(std::string);
 
     //Funciones de verificacion de parametros
-    bool verify_tamanio_mkdisk(std::string);
-    bool verify_unidades_mkdisk(std::string);
-    bool verify_ruta_mkdisk(std::string);
-    bool verify_fit_mkdisk(std::string);
+    bool verificar_tamanio_mkdisk(std::string);
+    bool verificar_unidades_mkdisk(std::string);
+    bool verificar_ruta_mkdisk(std::string);
+    bool verificar_fit_mkdisk(std::string);
 
     //Funciones de ayuda
     std::string split_text_mkdisk(std::string, char, int);
     int numero_random();
     void escribir_mbr(std::string, MBR);
     void crear_disco(std::string, int, std::string); // Parámetros => ruta, tamaño, unidad
+    std::string tolower_mkdisk(std::string);
 
     std::string errores_mkdisk(int);  //  Devuelve el mensaje de error correspondiente
-    void mensaje_error_crear_disco(); //  Mensaje de error al crear el disco
 
     //Parametros
     std::string fit;
