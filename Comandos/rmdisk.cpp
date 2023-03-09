@@ -6,8 +6,7 @@ void rmdisk::analizador_rmdisk(std::string comando)
     std::string aux = this->toLower_rmdisk(comando);
 
     (std::regex_search(aux, std::regex(">path")) == true) ? bandera = this->verificar_ruta_rmdisk(comando) : bandera = false;
-    if (bandera)
-    {
+    if (bandera) {
         this->eliminar_disco(this->ruta);
     }
 }
@@ -18,7 +17,7 @@ bool rmdisk::verificar_ruta_rmdisk(std::string texto)
 
     if (std::regex_search(texto, ru, std::regex("=((/\\w+)+\\.dsk|\"(/(\\w[ ]?)+)+\\.dsk\"|\\w+\\.dsk|\"(\\w[ ]?)+\\.dsk\")")) == true)
     {
-        this->ruta = this->split_text_rmdisk(ru.str(), '=', 2);
+        this->ruta = this->split_text_rmdisk(regex_replace(ru.str(), std::regex("\""), ""), '=', 2);
         return true;
     }
     std::cout << "Error: Ruta no valida" << std::endl;
@@ -27,12 +26,19 @@ bool rmdisk::verificar_ruta_rmdisk(std::string texto)
 
 bool rmdisk::eliminar_disco(std::string ruta)
 {
-    if (std::remove(ruta.c_str()) == 0)
-    {
-        std::cout << "Disco eliminado" << std::endl;
-        return true;
+    std::cout<<"Está seguro de que desea eliminar el disco "<< this->ruta<<"? (y/n)\n>> ";
+    std::string opcion;
+    getline(std::cin, opcion);
+    opcion = this->toLower_rmdisk(opcion);
+    if(opcion == "y") {
+        if (std::remove(ruta.c_str()) == 0){
+            std::cout << "Disco eliminado" << std::endl;
+            return true;
+        }
+        std::cout << "Error: No se pudo eliminar el disco porque no existe." << std::endl;
+    } else {
+        std::cout << "Operación cancelada." << std::endl;
     }
-    std::cout << "Error: No se pudo eliminar el disco" << std::endl;
     return false;
 }
 

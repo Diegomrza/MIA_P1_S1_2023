@@ -84,38 +84,38 @@ void execute::comandos(std::string texto)
 {
     std::smatch comando;
     std::string aux = this->toLower_execute(texto);
-    std::regex_search(aux, comando, std::regex("(mkdisk|fdisk|rep|rmdisk|mount|unmount)")); //|pause|exec|mkfs|login|logout|mkgrp|rmgrp|mkusr|rmusr|chmod|mkfile|cat|rem|edit|ren|mkdir|cp|mv|find|chown|chgrp|loss|recovery
+    std::regex_search(aux, comando, std::regex("([ ]|#|mkdisk|fdisk|rep|rmdisk|mount|unmount)")); //|pause|exec|mkfs|login|logout|mkgrp|rmgrp|mkusr|rmusr|chmod|mkfile|cat|rem|edit|ren|mkdir|cp|mv|find|chown|chgrp|loss|recovery
 
-    if (comando.str().compare("mkdisk") == 0)
-    {
+    if (comando.str().compare("mkdisk") == 0) {
+        std::cout<<"-----Comando mkdisk-----"<<std::endl;
         mkdisk mk(texto);
-        std::cout << std::endl;
-    }
-    else if (comando.str().compare("fdisk") == 0)
-    {
+        std::cout <<"-----!-----"<< std::endl;
+    } else if (comando.str().compare("fdisk") == 0) {
+        std::cout<<"-----Comando fdisk-----"<<std::endl;
         fdisk fd(texto);
-        std::cout << std::endl;
-    }
-    else if (comando.str().compare("rep") == 0)
-    {
+        std::cout <<"-----!-----"<< std::endl;
+    } else if (comando.str().compare("rep") == 0) {
+        std::cout<<"-----Comando rep-----"<<std::endl;
         rep re(texto);
-        std::cout << std::endl;
-    }
-    else if (comando.str().compare("rmdisk") == 0)
-    {
+        std::cout <<"-----!-----"<< std::endl;
+    } else if (comando.str().compare("rmdisk") == 0) {
+        std::cout<<"-----Comando rmdisk-----"<<std::endl;
         rmdisk rm(texto);
-        std::cout << std::endl;
-    } else if (comando.str().compare("mount") == 0) 
-    {
+        std::cout <<"-----!-----"<< std::endl;
+    } else if (comando.str().compare("mount") == 0) {
+        std::cout<<"-----Comando mount-----"<<std::endl;
         mount mo(texto);
-        std::cout << std::endl;
-    } else if (comando.str().compare("unmount") == 0) 
-    {
+        std::cout <<"-----!-----"<< std::endl;
+    } else if (comando.str().compare("unmount") == 0) {
+        std::cout<<"-----Comando unmount-----"<<std::endl;
         unmount um(texto);
+        std::cout <<"-----!-----"<< std::endl;
+    } else if (comando.str().compare("#") == 0) {
+        comentario co(texto);
+    } else if (comando.str().compare(" ") == 0) {
+        /*Nada*/
+    } else {
+        std::cout << "No se reconoce algun comando => " << texto << std::endl;
         std::cout << std::endl;
-    }
-    else
-    {
-        std::cout << "No se reconoce algun comando" << std::endl << std::endl;
     }
 }

@@ -15,6 +15,7 @@
 #include "../Comandos/rep.cpp"
 #include "../Comandos/rmdisk.cpp"
 #include "../Comandos/unmount.cpp"
+#include "../Comandos/comentario.cpp"
 
 
 class execute

@@ -9,6 +9,11 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sys/stat.h> //Para crear carpetas con mkdir
+#include <dirent.h> //Para abrir un directorio con opendir
+#include <errno.h> //Para obtener el error de mkdir
+#include <vector> //Para el vector de numeros aleatorios
+#include <algorithm> //Para el find del vector de numeros aleatorios
+#include "../DefinicionStructs/structNumerosAleatorios.h"
 
 class mkdisk
 {
