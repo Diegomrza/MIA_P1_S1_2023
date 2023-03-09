@@ -4,25 +4,29 @@
 #include <string>
 #include <regex>
 #include "../DefinicionStructs/structParticion.h"
+#include "../DefinicionStructs/structMBR.h"
 
 class fdisk
 {
 private:
-    int tamanio;          // Obligatorio al crear
-    std::string ruta;     // Obligatorio
-    std::string nombre;   // Obligatorio
+    int tamanio;        // Obligatorio al crear
+    std::string ruta;   // Obligatorio
+    std::string nombre; // Obligatorio
 
     std::string unidades; // Opcional
     std::string tipo;     // Opcional
     std::string ajuste;   // Opcional
     std::string eliminar; // Opcional
-    std::string agregar; //Opcional
-    
+    std::string agregar;  // Opcional
 
     void analizador_fdisk(std::string);
     std::string split_text_fdisk(std::string, char, int);
     std::string toLower_fdisk(std::string);
     void crear_particion();
+    void modificar_particion(structParticion &);
+    void reescribir_mbr(MBR);
+    void mostrar_mbr();
+    void mostrar_particion(structParticion);
 
     bool verificar_tamanio(std::string);
     bool verificar_ruta(std::string);

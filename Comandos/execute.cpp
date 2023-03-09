@@ -84,7 +84,7 @@ void execute::comandos(std::string texto)
 {
     std::smatch comando;
     std::string aux = this->toLower_execute(texto);
-    std::regex_search(aux, comando, std::regex("(mkdisk|fdisk|rep|rmdisk|mount|unmount|pause|exec|mkfs|login|logout|mkgrp|rmgrp|mkusr|rmusr|chmod|mkfile|cat|rem|edit|ren|mkdir|cp|mv|find|chown|chgrp|loss|recovery)"));
+    std::regex_search(aux, comando, std::regex("(mkdisk|fdisk|rep|rmdisk|mount|unmount)")); //|pause|exec|mkfs|login|logout|mkgrp|rmgrp|mkusr|rmusr|chmod|mkfile|cat|rem|edit|ren|mkdir|cp|mv|find|chown|chgrp|loss|recovery
 
     if (comando.str().compare("mkdisk") == 0)
     {
@@ -105,57 +105,14 @@ void execute::comandos(std::string texto)
     {
         rmdisk rm(texto);
         std::cout << std::endl;
-    } else if (comando.str().compare("mount") == 0) {
+    } else if (comando.str().compare("mount") == 0) 
+    {
         mount mo(texto);
         std::cout << std::endl;
-    } else if (comando.str().compare("unmount") == 0) {
-
-    } else if (comando.str().compare("pause") == 0) {
-
-    } else if (comando.str().compare("exec") == 0) {
-
-    } else if (comando.str().compare("mkfs") == 0) {
-
-    } else if (comando.str().compare("login") == 0) {
-
-    } else if (comando.str().compare("logout") == 0) {
-
-    } else if (comando.str().compare("mkgrp") == 0) {
-
-    } else if (comando.str().compare("rmgrp") == 0) {
-
-    } else if (comando.str().compare("mkusr") == 0) {
-
-    } else if (comando.str().compare("rmusr") == 0) {
-
-    } else if (comando.str().compare("chmod") == 0) {
-
-    } else if (comando.str().compare("mkfile") == 0) {
-
-    } else if (comando.str().compare("cat") == 0) {
-
-    } else if (comando.str().compare("rem") == 0) {
-
-    } else if (comando.str().compare("edit") == 0) {
-
-    } else if (comando.str().compare("ren") == 0) {
-
-    } else if (comando.str().compare("mkdir") == 0) {
-
-    } else if (comando.str().compare("cp") == 0) {
-
-    } else if (comando.str().compare("mv") == 0) {
-
-    } else if (comando.str().compare("find") == 0) {
-
-    } else if (comando.str().compare("chown") == 0) {
-
-    } else if (comando.str().compare("chgrp") == 0) {
-
-    } else if (comando.str().compare("loss") == 0) {
-
-    } else if (comando.str().compare("recovery") == 0) {
-
+    } else if (comando.str().compare("unmount") == 0) 
+    {
+        unmount um(texto);
+        std::cout << std::endl;
     }
     else
     {

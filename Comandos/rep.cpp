@@ -15,11 +15,11 @@ void rep::mostrar(std::string ruta)
         p.read((char *)&auxP, sizeof(auxP));
         while (!p.eof())
         {
-            if (auxP.mbr_tamano != 0)
+            if (auxP.mbr_size != 0)
             {
-                std::cout << "Tamanio: " << auxP.mbr_tamano;
+                std::cout << "Tamanio: " << auxP.mbr_size;
                 std::cout << "   Numero: " << auxP.mbr_dsk_signature;
-                std::cout << "   Fecha: " << std::ctime(&auxP.mbr_fecha_creacion);
+                std::cout << "   Fecha: " << std::ctime(&auxP.mbr_date_creation);
                 std::cout << std::endl;
             }
 

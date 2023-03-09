@@ -2,34 +2,38 @@
 
 void unmount::analizador_unmount(std::string texto)
 {
-    bool bandera = true;
-
     /**
-     * (U|u)(N|n)(M|m)(O|o)(U|u)(N|n)(T|t)     
-    */
-    if (std::regex_search(texto, std::regex(">(U|u)(N|n)(M|m)(O|o)(U|u)(N|n)(T|t)"))) {
-        /**
-         * >(I|i)(D|d)=([a-zA-Z0-9_]+)
-        */
-        if (std::regex_search(texto, std::regex(">(I|i)(D|d)=([a-zA-Z0-9_]+)"))) {
-            this->id = this->split_text_unmount(texto, '=', 2);
-        } else {
-            bandera = false;
-            std::cout << "Error: el id no es valido" << std::endl;
-        }
-    } else {
+     * (U|u)(N|n)(M|m)(O|o)(U|u)(N|n)(T|t)
+     */
+    if (std::regex_search(texto, std::regex(">(U|u)(N|n)(M|m)(O|o)(U|u)(N|n)(T|t)")) == false)
+    {
         std::cout << "Error de comando unmount" << std::endl;
-        bandera = false;
+        return;
     }
+    if (verificar_id(texto))
+        this->desmontar_particion();
+}
 
-    if (bandera) {
-        this->desmontar();
+bool unmount::verificar_id(std::string texto)
+{
+    /**
+     * >(I|i)(D|d)=([a-zA-Z0-9_]+)
+     */
+    if (std::regex_search(texto, std::regex(">(I|i)(D|d)=([a-zA-Z0-9_]+)")))
+    {
+        this->id = this->split_text_unmount(texto, '=', 2);
+        return true;
+    }
+    else
+    {
+        return false;
+        std::cout << "Error: el id no es valido" << std::endl;
     }
 }
 
-void unmount::desmontar()
+void unmount::desmontar_particion()
 {
-    
+    std::cout << "Desmount completo" << std::endl;
 }
 
 std::string unmount::toLower_unmount(std::string texto)

@@ -157,14 +157,14 @@ void mkdisk::crear_disco(std::string ruta, int tamanio, std::string unidad)
     }
 
     // Obteniendo la hora
-
     auto now = std::chrono::system_clock::now();
     std::time_t end_time = std::chrono::system_clock::to_time_t(now);
 
     MBR mbr1;
-    mbr1.mbr_tamano = kilobyte;
+    mbr1.mbr_size = kilobyte*tamanio;
     mbr1.mbr_dsk_signature = this->numero_random();
-    mbr1.mbr_fecha_creacion = end_time;
+    mbr1.mbr_date_creation = end_time;
+    this->mostrar_mbr(mbr1);
 
     this->escribir_mbr(ruta, mbr1);
     std::cout << "Disco creado en: " << ruta << std::endl;
@@ -175,10 +175,44 @@ void mkdisk::escribir_mbr(std::string ruta, MBR p)
     std::fstream archivo(ruta, std::ios::out | std::ios::in | std::ios::binary);
     if (archivo.is_open())
     {
-        archivo.seekp((p.mbr_dsk_signature - 1) * sizeof(MBR));
+        //archivo.seekp((p.mbr_dsk_signature - 1) * sizeof(MBR));
         archivo.write((char *)&p, sizeof(MBR));
         archivo.close();
     }
+
+    //Insertando el mbr
+    // FILE *arch;
+    // arch = fopen(ruta.c_str(),"ab");
+    // if (arch==NULL) {
+    //     std::cout<<"No se pudo escribir el mbr"<<std::endl;
+    //     return;
+    // }
+    // fwrite(&p, sizeof(MBR), 1, arch);
+    // fclose(arch);
+
+    // std::cout<<"Ruta: "<<this->ruta<<std::endl;
+
+    // //Leyendo y mostrando el mbr
+    FILE *arch2;
+    arch2 = fopen(ruta.c_str(), "rb");
+    if (arch2 == NULL) {
+        std::cout<<"Error al leer el mbr"<<std::endl;
+    }
+    MBR mbr2; 
+    std::cout<<"Despues de insertar el mbr: "<<std::endl;
+    fread(&mbr2, sizeof(MBR), 1, arch2);
+    while (!feof(arch2)) {
+        if (mbr2.mbr_size != 0) {
+            this->mostrar_mbr(mbr2);
+        }
+        fread(&mbr2, sizeof(MBR), 1, arch2);
+    }
+    fclose(arch2);
+}
+
+void mkdisk::mostrar_mbr(MBR mbr) {
+    std::cout<<"Tamaño: "<<mbr.mbr_size<<std::endl;
+    std::cout<<"Dsk: "<<mbr.mbr_dsk_signature<<std::endl;
 }
 
 std::string mkdisk::errores_mkdisk(int tipo_error)

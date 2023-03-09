@@ -26,6 +26,7 @@ private:
     std::string split_text_mkdisk(std::string, char, int);
     int numero_random();
     void escribir_mbr(std::string, MBR);
+    void mostrar_mbr(MBR);
     void crear_disco(std::string, int, std::string); // Parámetros => ruta, tamaño, unidad
     std::string tolower_mkdisk(std::string);
 

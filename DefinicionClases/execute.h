@@ -6,11 +6,16 @@
 #include <regex>
 #include <iostream>
 #include <fstream>
-#include "../Comandos/mkdisk.cpp"
+
+//Importacion de comandos
 #include "../Comandos/fdisk.cpp"
+#include "../Comandos/mkdisk.cpp"
+#include "../Comandos/mkfs.cpp"
+#include "../Comandos/mount.cpp"
 #include "../Comandos/rep.cpp"
 #include "../Comandos/rmdisk.cpp"
-#include "../Comandos/mount.cpp"
+#include "../Comandos/unmount.cpp"
+
 
 class execute
 {
