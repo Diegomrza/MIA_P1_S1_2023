@@ -10,6 +10,7 @@ private:
     std::string comentarios[100];
     int contador_comentarios = 0;
     void analizador_comentario(std::string);
+    std::string split_text_comentarios(std::string, char, int);
 
 public:
     comentario(std::string);

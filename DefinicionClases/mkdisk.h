@@ -2,21 +2,19 @@
 #define MKDISK_H
 
 #include <string>
-#include <fstream>
-#include <iostream>
-#include "../DefinicionStructs/structMBR.h"
-#include "chrono"
-#include <stdlib.h>
-#include <time.h>
+#include <fstream>  //Para leer y escribir en un archivo
+#include <iostream> //Para entrada y salida de datos
+
+#include "chrono"   // Para obtener la fecha y hora c++ 11
+#include <time.h>   // Para obtener la fecha y hora c y c++
+#include <stdlib.h> // para la generacion de numeros aleatorios
 #include <sys/stat.h> //Para crear carpetas con mkdir
 #include <dirent.h> //Para abrir un directorio con opendir
 #include <errno.h> //Para obtener el error de mkdir
-#include <vector> //Para el vector de numeros aleatorios
-#include <algorithm> //Para el find del vector de numeros aleatorios
-#include "../DefinicionStructs/structNumerosAleatorios.h"
+#include "../DefinicionStructs/structMBR.h"
+#include "../DefinicionClases/comentario.h"
 
-class mkdisk
-{
+class mkdisk {
 private:
     //Funcion principal
     void analizador_mkdisk(std::string);
@@ -29,11 +27,13 @@ private:
 
     //Funciones de ayuda
     std::string split_text_mkdisk(std::string, char, int);
+    std::string tolower_mkdisk(std::string);
     int numero_random();
+    
+    void crear_disco(std::string, int, std::string); // Parámetros => ruta, tamaño, unidad
+    void crear_carpeta(std::string);
     void escribir_mbr(std::string, MBR);
     void mostrar_mbr(MBR);
-    void crear_disco(std::string, int, std::string); // Parámetros => ruta, tamaño, unidad
-    std::string tolower_mkdisk(std::string);
 
     std::string errores_mkdisk(int);  //  Devuelve el mensaje de error correspondiente
 
@@ -48,8 +48,7 @@ public:
     ~mkdisk();
 };
 
-mkdisk::mkdisk(std::string texto)
-{
+mkdisk::mkdisk(std::string texto) {
     this->tamanio = 0;    // size => Obligatorio
     this->unidades = "M"; // unit => Opcional => K o M
     this->ruta = "";      // path => Obligatorio
@@ -57,8 +56,7 @@ mkdisk::mkdisk(std::string texto)
     this->analizador_mkdisk(texto);
 }
 
-mkdisk::~mkdisk()
-{
+mkdisk::~mkdisk() {
 }
 
 #endif

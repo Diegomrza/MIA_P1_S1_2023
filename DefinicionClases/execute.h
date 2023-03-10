@@ -31,6 +31,8 @@ private:
 public:
     execute(std::string);
     ~execute();
+    void reconocer_comentarios(std::string);        // Reconoce los comentarios
+    
 };
 
 execute::execute(std::string comando)

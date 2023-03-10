@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <regex>
+#include "./comentario.h"
 
 class unmount
 {

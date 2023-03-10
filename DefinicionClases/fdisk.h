@@ -5,6 +5,7 @@
 #include <regex>
 #include "../DefinicionStructs/structParticion.h"
 #include "../DefinicionStructs/structMBR.h"
+#include "../DefinicionClases/comentario.h"
 
 class fdisk
 {
@@ -17,11 +18,12 @@ private:
     std::string tipo;     // Opcional
     std::string ajuste;   // Opcional
     std::string eliminar; // Opcional
-    std::string agregar;  // Opcional
+    int agregar;  // Opcional
 
     void analizador_fdisk(std::string);
     std::string split_text_fdisk(std::string, char, int);
     std::string toLower_fdisk(std::string);
+    void administrador_fdisk();
     void crear_particion();
     void modificar_particion(structParticion &);
     void reescribir_mbr(MBR);
@@ -53,7 +55,7 @@ fdisk::fdisk(std::string texto)
     this->tipo = "P";
     this->ajuste = "WF";
     this->eliminar = "";
-    this->agregar = "";
+    this->agregar = 0;
     this->analizador_fdisk(texto);
 }
 
