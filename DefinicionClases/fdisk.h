@@ -20,20 +20,35 @@ private:
     std::string eliminar; // Opcional
     int agregar;  // Opcional
 
-    void analizador_fdisk(std::string);
+    
     std::string split_text_fdisk(std::string, char, int);
     std::string toLower_fdisk(std::string);
+    int contador_particiones_primarias(MBR);
+    bool existe_particion_extendida(MBR);
+
     void administrador_fdisk();
+
     void crear_particion();
+    void crear_particion_primaria(MBR);
+    void crear_particion_extendida(MBR);
+    void crear_particion_logica(MBR);
+
+    void eliminar_particion();
     void modificar_particion(structParticion &);
+
     void reescribir_mbr(MBR);
     void mostrar_mbr();
     void mostrar_particion(structParticion);
 
+    // Función inicial
+    void analizador_fdisk(std::string);
+
+    //Parámetros obligatorios
     bool verificar_tamanio(std::string);
     bool verificar_ruta(std::string);
     bool verificar_nombre(std::string);
 
+    //Parámetros opcionales
     bool verificar_tipo(std::string);
     bool verificar_ajuste(std::string);
     bool verificar_eliminar(std::string);
