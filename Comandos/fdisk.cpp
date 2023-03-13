@@ -51,7 +51,14 @@ void fdisk::analizador_fdisk(std::string texto)
         std::cout << "Tipo: " << this->tipo << std::endl;
         std::cout << "Unidades: " << this->unidades << std::endl;
         std::cout << "Ajuste: " << this->ajuste << std::endl;
-        this->crear_particion();
+        std::cout << "Eliminar: " << this->eliminar << std::endl;
+        std::cout << "Agregar: " << this->agregar << std::endl;
+
+        this->administrador_fdisk();
+        std::cout << "\n\nParticiones: " << std::endl;
+        this->ordenar_particiones();
+        this->mostrar_mbr();
+        std::cout<<"----------------------------------\n\n"<<std::endl;
     }
     std::cout << std::endl;
 }
@@ -205,7 +212,7 @@ bool fdisk::verificar_agregar(std::string texto)
     return false;
 }
 
-//
+// Funciones principales
 void fdisk::administrador_fdisk() {     
     /*
         [path, name]                 Obligatorio
@@ -220,8 +227,8 @@ void fdisk::administrador_fdisk() {
     if (this->eliminar.compare("") != 0) { // delete
         this->eliminar_particion();
     } else if (this->agregar != 0) { // add
-        //this->modificar_particion();
-    } else { // make 
+        // this->modificar_particion();
+    } else { // make
         this->crear_particion();
     }
 }
@@ -229,11 +236,27 @@ void fdisk::administrador_fdisk() {
 void fdisk::crear_particion() {
     /**
      * Pasos:
-     *  1. Verificar si existe el disco. Listo
-     *  2. Buscar si existe una particion primaria con ese nombre.
-     *  3. Buscar si existe una particion extendida y verificar si tiene ese nombre.
-     *  4. Si existe la particion extendida, verificar si existe una particion logica dentro con ese nombre.
-     *  5. 
+     *  1. Evaluar todos los casos posibles.
+     *      1.1 Caso 1:
+     *              No existe ninguna particion.
+     *              Se crea la primera particion justo después del mbr.
+     *      1.2: Caso2:
+     *              Existe una particion.
+     *              Determinar la distancia desde el mbr hasta el inicio de la particion.
+     *              Determinar la distancia desde el final de la particion hasta el final del disco.
+     *      1.3: Caso3:
+     *              Existen dos particiones.
+     *              Ordenar las particiones por su inicio.
+     *              Determinar la distancia desde el mbr hasta el inicio de la 1era particion.
+     *              Determinar la distancia desde el final de la 1era particion hasta el inicio de la 2da particion.
+     *              Determinar la distancia desde el final de la 2da particion hasta el final del disco.
+     *      1.4: Caso4:
+     *              Existen tres particiones. 
+     *              Ordenar las particiones por su inicio.
+     *              Determinar la distancia desde el mbr hasta el inicio de la 1era particion.
+     *              Determinar la distancia desde el final de la 1era particion hasta el inicio de la 2da particion.
+     *              Determinar la distancia desde el final de la 2da particion hasta el inicio de la 3ra particion.
+     *              Determinar la distancia desde el final de la 3ra particion hasta el final del disco.
     */
     FILE *arch = fopen(this->ruta.c_str(), "rb");
     MBR mbr;
@@ -245,22 +268,13 @@ void fdisk::crear_particion() {
     fread(&mbr, sizeof(MBR), 1, arch);
     while (!feof(arch)) {
         if (mbr.mbr_size != 0) {
-            structParticion aux = {'0', this->tipo[0], this->ajuste[0], 0, this->tamanio};
-            strcpy(aux.part_name, this->nombre.c_str());
-            
-            if (strcmp(mbr.mbr_partition1.part_name, "") == 0) {
-
-            } else if (strcmp(mbr.mbr_partition2.part_name, "") == 0) {
-                
-            } else if (strcmp(mbr.mbr_partition3.part_name, "") == 0) {
-                
-            } else if (strcmp(mbr.mbr_partition4.part_name, "") == 0) {
-               
-            } else {
-                std::cout << "No se puede crear otra partición primaria." << std::endl;
+            if (this->tipo[0] == 'P') {
+                this->crear_particion_primaria(mbr);
+            } else if (this->tipo[0] == 'E') {
+                this->crear_particion_extendida(mbr);
+            } else if (this->tipo[0] == 'L') {
+                this->crear_particion_logica(mbr);
             }
-            this->reescribir_mbr(mbr);
-            this->mostrar_mbr();
             break;
         }
         fread(&mbr, sizeof(MBR), 1, arch);
@@ -270,14 +284,271 @@ void fdisk::crear_particion() {
 
 void fdisk::crear_particion_primaria(MBR mbr) {
     int contador_primarias = this->contador_particiones_primarias(mbr);
-    if (contador_primarias == 3 and this->tipo.compare("P") == 0) {
-        std::cout << "Error: Ya existen 3 particiones primarias." << std::endl;
+    if (contador_primarias == 4 and this->tipo.compare("P") == 0) {
+        std::cout << "Error: Ya existen 4 particiones primarias." << std::endl;
         return;
     }
+    if ((strcmp(mbr.mbr_partition1.part_name, this->nombre.c_str()) == 0) ||
+    (strcmp(mbr.mbr_partition2.part_name, this->nombre.c_str()) == 0) || 
+    (strcmp(mbr.mbr_partition3.part_name, this->nombre.c_str()) == 0) || 
+    (strcmp(mbr.mbr_partition4.part_name, this->nombre.c_str()) == 0)) {
+        std::cout << "Error: Ya existe una partición con el mismo nombre." << std::endl;
+        return;
+    }
+    /**
+        Caso1:
+        ||mbr|----------------------------------------------------------------------------|
+        Caso2:
+        ||mbr|--------------|part1|-------------------------------------------------------|
+        Caso3:
+        ||mbr|--------------|part1|----------------|part2|--------------------------------|
+        Caso4:
+        ||mbr|--------------|part1|----------------|part2|----------------|part3|---------|
+
+    */
+
+    structParticion aux = {'0', this->tipo[0], this->ajuste[0], 0, this->tamanio};
+    strcpy(aux.part_name, this->nombre.c_str());
+
+    if (contador_primarias == 0) { /*Caso1: ||mbr|----------------------------------------------------------------------------|*/
+        aux.part_start = sizeof(MBR);
+        mbr.mbr_partition1 = aux;
+        this->reescribir_mbr(mbr);
+    } else if (contador_primarias == 1) { /*Caso2: ||mbr|--------------|part1|-------------------------------------------------------|*/
+        this->ordenar_particiones();
+        
+        int espacio_libre1 = mbr.mbr_partition1.part_start - sizeof(MBR);
+        int espacio_libre2 = mbr.mbr_size - (mbr.mbr_partition1.part_start + mbr.mbr_partition1.part_s);
+
+        if (this->ajuste[0] == 'F') { //First Fit
+            if (espacio_libre1 >= this->tamanio) {
+                aux.part_start = sizeof(MBR);
+                mbr.mbr_partition2 = aux;
+            } else if (espacio_libre2 > this->tamanio) {
+                aux.part_start = mbr.mbr_partition1.part_start + mbr.mbr_partition1.part_s;
+                mbr.mbr_partition2 = aux;
+            } else {
+                std::cout << "Error: No hay espacio suficiente para crear la partición." << std::endl;
+                return;
+            }
+            this->reescribir_mbr(mbr);
+        } else if (this->ajuste[0] == 'B') { //Best Fit
+            if (espacio_libre1 < espacio_libre2) {
+                if (espacio_libre1 >= this->tamanio) {
+                    aux.part_start = sizeof(MBR);
+                    mbr.mbr_partition2 = aux;
+                } else if (espacio_libre2 >= this->tamanio) {
+                    aux.part_start = mbr.mbr_partition1.part_start + mbr.mbr_partition1.part_s;
+                    mbr.mbr_partition2 = aux;
+                } else {
+                    std::cout << "Error: No hay espacio suficiente para crear la partición." << std::endl;
+                    return;
+                }
+            } else {
+                if (espacio_libre2 >= this->tamanio) {
+                    aux.part_start = mbr.mbr_partition1.part_start + mbr.mbr_partition1.part_s;
+                    mbr.mbr_partition2 = aux;
+                } else if (espacio_libre1 >= this->tamanio) {
+                    aux.part_start = sizeof(MBR);
+                    mbr.mbr_partition2 = aux;
+                } else {
+                    std::cout << "Error: No hay espacio suficiente para crear la partición." << std::endl;
+                    return;
+                }
+            }
+            this->reescribir_mbr(mbr);
+        } else if (this->ajuste[0] == 'W') { //Worst Fit
+            if (espacio_libre1 > espacio_libre2) {
+                if (espacio_libre1 >= this->tamanio) {
+                    aux.part_start = sizeof(MBR);
+                    mbr.mbr_partition2 = aux;
+                } else if (espacio_libre2 >= this->tamanio) {
+                    aux.part_start = mbr.mbr_partition1.part_start + mbr.mbr_partition1.part_s;
+                    mbr.mbr_partition2 = aux;
+                } else {
+                    std::cout << "Error: No hay espacio suficiente para crear la partición." << std::endl;
+                    return;
+                }
+            } else {
+                if (espacio_libre2 >= this->tamanio) {
+                    aux.part_start = mbr.mbr_partition1.part_start + mbr.mbr_partition1.part_s;
+                    mbr.mbr_partition2 = aux;
+                } else if (espacio_libre1 >= this->tamanio) {
+                    aux.part_start = sizeof(MBR);
+                    mbr.mbr_partition2 = aux;
+                } else {
+                    std::cout << "Error: No hay espacio suficiente para crear la partición." << std::endl;
+                    return;
+                }
+            }
+            this->reescribir_mbr(mbr);
+        }
+    } else if (contador_primarias == 2) { /*Caso3: ||mbr|--------------|part1|----------------|part2|--------------------------------|*/
+        this->ordenar_particiones();
+
+        int espacio_libre1 = mbr.mbr_partition1.part_start - sizeof(MBR);
+        int espacio_libre2 = mbr.mbr_partition2.part_start - (mbr.mbr_partition1.part_start + mbr.mbr_partition1.part_s);
+        int espacio_libre3 = mbr.mbr_size - (mbr.mbr_partition2.part_start + mbr.mbr_partition2.part_s);
+
+        // Obteniendo cuanto queda libre si se ingresa la particion en el espacio libre
+        int tam1 = espacio_libre1 - this->tamanio;
+        int tam2 = espacio_libre2 - this->tamanio;
+        int tam3 = espacio_libre3 - this->tamanio;
+
+        if (this->ajuste[0] == 'F') { // First Fit
+            if (espacio_libre1 >= this->tamanio) {
+                aux.part_start = sizeof(MBR);
+                mbr.mbr_partition3 = aux;
+            } else if (espacio_libre2 >= this->tamanio) {
+                aux.part_start = mbr.mbr_partition1.part_start + mbr.mbr_partition1.part_s;
+                mbr.mbr_partition3 = aux;
+            } else if (espacio_libre3 >= this->tamanio) {
+                aux.part_start = mbr.mbr_partition2.part_start + mbr.mbr_partition2.part_s;
+                mbr.mbr_partition3 = aux;
+            } else {
+                std::cout << "Error: No hay espacio suficiente para crear la partición." << std::endl;
+                return;
+            }
+        } else if (this->ajuste[0] == 'B') { // Best Fit
+
+            //Verificar con cual se desperdicia menos espacio
+            if (tam1 <= tam2 && tam1 <= tam3 && tam1 >= this->tamanio) {
+                aux.part_start = sizeof(MBR);
+                mbr.mbr_partition3 = aux;
+            } else if (tam2 <= tam1 && tam2 <= tam3 && tam2 >= this->tamanio) {
+                aux.part_start = mbr.mbr_partition1.part_start + mbr.mbr_partition1.part_s;
+                mbr.mbr_partition3 = aux;
+            } else if (tam3 <= tam1 && tam3 <= tam2 && tam3 >= this->tamanio) {
+                aux.part_start = mbr.mbr_partition2.part_start + mbr.mbr_partition2.part_s;
+                mbr.mbr_partition3 = aux;
+            } else {
+                std::cout << "Error: No hay espacio suficiente para crear la partición." << std::endl;
+                return;
+            }
+        } else if (this->ajuste[0] == 'W') { // Worst Fit
+            if (tam1 >= tam2 && tam1 >= tam3 && tam1 >= this->tamanio) {
+                aux.part_start = sizeof(MBR);
+                mbr.mbr_partition3 = aux;
+            } else if (tam2 >= tam1 && tam2 >= tam3 && tam2 >= this->tamanio) {
+                aux.part_start = mbr.mbr_partition1.part_start + mbr.mbr_partition1.part_s;
+                mbr.mbr_partition3 = aux;
+            } else if (tam3 >= tam1 && tam3 >= tam2 && tam3 >= this->tamanio) {
+                aux.part_start = mbr.mbr_partition2.part_start + mbr.mbr_partition2.part_s;
+                mbr.mbr_partition3 = aux;
+            } else {
+                std::cout << "Error: No hay espacio suficiente para crear la partición." << std::endl;
+                return;
+            }
+        }
+        this->reescribir_mbr(mbr);
+    } else if (contador_primarias == 3) {
+        this->ordenar_particiones();
+
+        int espacio_libre1 = mbr.mbr_partition1.part_start - sizeof(MBR);
+        int espacio_libre2 = mbr.mbr_partition2.part_start - (mbr.mbr_partition1.part_start + mbr.mbr_partition1.part_s);
+        int espacio_libre3 = mbr.mbr_partition3.part_start - (mbr.mbr_partition2.part_start + mbr.mbr_partition2.part_s);
+        int espacio_libre4 = mbr.mbr_size - (mbr.mbr_partition3.part_start + mbr.mbr_partition3.part_s);
+
+        if (this->ajuste[0] == 'F') { //First Fit
+            if (espacio_libre1 >= this->tamanio) {
+                std::cout<<"Entro!!!!!!!!!!!"<<std::endl;
+                aux.part_start = sizeof(MBR);
+                mbr.mbr_partition4 = aux;
+            } else if (espacio_libre2 >= this->tamanio) { 
+                aux.part_start = mbr.mbr_partition1.part_start + mbr.mbr_partition1.part_s;
+                mbr.mbr_partition4 = aux;
+            } else if (espacio_libre3 >= this->tamanio) {
+                aux.part_start = mbr.mbr_partition2.part_start + mbr.mbr_partition2.part_s;
+                mbr.mbr_partition4 = aux;
+            } else if (espacio_libre4 >= 0) {
+                aux.part_start = mbr.mbr_partition3.part_start + mbr.mbr_partition3.part_s;
+                mbr.mbr_partition4 = aux;
+            } else {
+                std::cout << "Error: No hay espacio suficiente para crear la partición." << std::endl;
+                return;
+            }
+        } else if (this->ajuste[0] == 'B') { //Best Fit
+            if (espacio_libre1 <= espacio_libre2 && espacio_libre1 <= espacio_libre3 && espacio_libre1 <= espacio_libre4 && espacio_libre1 >= this->tamanio) {
+                aux.part_start = sizeof(MBR);
+                mbr.mbr_partition4 = aux;
+            } else if (espacio_libre2 <= espacio_libre1 && espacio_libre2 <= espacio_libre3 && espacio_libre2 <= espacio_libre4 && espacio_libre2 >= this->tamanio) {
+                aux.part_start = mbr.mbr_partition1.part_start + mbr.mbr_partition1.part_s;
+                mbr.mbr_partition4 = aux;
+            } else if (espacio_libre3 <= espacio_libre1 && espacio_libre3 <= espacio_libre2 && espacio_libre3 <= espacio_libre4 && espacio_libre3 >= this->tamanio) {
+                aux.part_start = mbr.mbr_partition2.part_start + mbr.mbr_partition2.part_s;
+                mbr.mbr_partition4 = aux;
+            } else if (espacio_libre4 <= espacio_libre1 && espacio_libre4 <= espacio_libre2 && espacio_libre4 <= espacio_libre3 && espacio_libre4 >= this->tamanio) {
+                aux.part_start = mbr.mbr_partition3.part_start + mbr.mbr_partition3.part_s;
+                mbr.mbr_partition4 = aux;
+            } else {
+                std::cout << "Error: No hay espacio suficiente para crear la partición." << std::endl;
+                return;
+            }
+        } else if (this->ajuste[0] == 'W') { //Worst Fit
+            if (espacio_libre1 >= espacio_libre2 && espacio_libre1 >= espacio_libre3 && espacio_libre1 >= espacio_libre4 && espacio_libre1 >= this->tamanio) {
+                aux.part_start = sizeof(MBR);
+                mbr.mbr_partition4 = aux;
+            } else if (espacio_libre2 >= espacio_libre1 && espacio_libre2 >= espacio_libre3 && espacio_libre2 >= espacio_libre4 && espacio_libre2 >= this->tamanio) {
+                aux.part_start = mbr.mbr_partition1.part_start + mbr.mbr_partition1.part_s;
+                mbr.mbr_partition4 = aux;
+            } else if (espacio_libre3 >= espacio_libre1 && espacio_libre3 >= espacio_libre2 && espacio_libre3 >= espacio_libre4 && espacio_libre3 >= this->tamanio) {
+                aux.part_start = mbr.mbr_partition2.part_start + mbr.mbr_partition2.part_s;
+                mbr.mbr_partition4 = aux;
+            } else if (espacio_libre4 >= espacio_libre1 && espacio_libre4 >= espacio_libre2 && espacio_libre4 >= espacio_libre3 && espacio_libre4 >= this->tamanio) {
+                aux.part_start = mbr.mbr_partition3.part_start + mbr.mbr_partition3.part_s;
+                mbr.mbr_partition4 = aux;
+            } else {
+                std::cout << "Error: No hay espacio suficiente para crear la partición." << std::endl;
+                return;
+            }
+        }
+        this->reescribir_mbr(mbr);
+    }
+
 }
 
 void fdisk::crear_particion_extendida(MBR mbr) {
+    if (this->existe_particion_extendida(mbr)) {
+        std::cout <<"Error: Ya existe una partición extendida."<< std::endl;
+        return;
+    }
 
+    this->crear_particion_primaria(mbr);
+
+    FILE *arch = fopen(this->ruta.c_str(), "rb+");
+    if (arch == NULL) {
+        std::cout << "Error: No existe el disco." << std::endl;
+        return;
+    }
+    fseek(arch, 0, SEEK_SET);
+    fread(&mbr, sizeof(MBR), 1, arch);
+
+    EBR ebr = {'0', 'F', 0, sizeof(EBR), -1, "EBR"}; // EBR principal de la partición extendida
+    int inicio = 0; // Para indicar en que parte del disco se encuentra el EBR
+
+    while (!feof(arch)) {
+        if (mbr.mbr_size != 0) {
+            if (mbr.mbr_partition1.part_type == 'E') {
+                ebr.part_start = inicio = mbr.mbr_partition1.part_start;
+            } else if (mbr.mbr_partition2.part_type == 'E') {
+                ebr.part_start = inicio = mbr.mbr_partition2.part_start;
+            } else if (mbr.mbr_partition3.part_type == 'E') {
+                ebr.part_start = inicio = mbr.mbr_partition3.part_start;
+            } else if (mbr.mbr_partition4.part_type == 'E') {
+                ebr.part_start = inicio = mbr.mbr_partition4.part_start;
+            }
+            break;
+        }
+        fread(&mbr, sizeof(MBR), 1, arch);
+    }
+
+    std::fstream archivo(this->ruta, std::ios::out | std::ios::in | std::ios::binary);
+    if (archivo.is_open())
+    {
+        archivo.seekp(inicio);
+        archivo.write((char *)&ebr, sizeof(EBR));
+        archivo.close();
+    }
 }
 
 void fdisk::crear_particion_logica(MBR mbr) {
@@ -327,6 +598,75 @@ void fdisk::modificar_particion(structParticion &particion) {
     strcpy(particion.part_name, this->nombre.c_str());
 }
 
+// Funciones complementarias principales.
+void fdisk::ordenar_particiones() {
+    int num1, num2, num3, num4;
+
+    FILE *arch = fopen(this->ruta.c_str(), "rb");
+    MBR mbr;
+    if (arch == NULL) {
+        std::cout << "Error: No existe el disco." << std::endl;
+        return;
+    }
+
+    fread(&mbr, sizeof(MBR), 1, arch);
+    while (!feof(arch)) {
+        if (mbr.mbr_size != 0) {
+            num1 = mbr.mbr_partition1.part_start; //a
+            num2 = mbr.mbr_partition2.part_start; //b
+            num3 = mbr.mbr_partition3.part_start; //c
+            num4 = mbr.mbr_partition4.part_start; //d
+            break;
+        }
+        fread(&mbr, sizeof(MBR), 1, arch);
+    }
+    fclose(arch);
+
+    (num1 == 0) ? num1 = 999999999 : num1;
+    (num2 == 0) ? num2 = 999999999 : num2;
+    (num3 == 0) ? num3 = 999999999 : num3;
+    (num4 == 0) ? num4 = 999999999 : num4;
+
+    if (num1 > num2) { //a > b
+        structParticion aux = mbr.mbr_partition1;
+        mbr.mbr_partition1 = mbr.mbr_partition2;
+        mbr.mbr_partition2 = aux;
+        std::swap(num1, num2);
+    } 
+    if (num1 > num3) { //a > c
+        structParticion aux = mbr.mbr_partition1;
+        mbr.mbr_partition1 = mbr.mbr_partition3;
+        mbr.mbr_partition3 = aux;
+        std::swap(num1, num3);
+    }
+    if (num1 > num4) { //a > d
+        structParticion aux = mbr.mbr_partition1;
+        mbr.mbr_partition1 = mbr.mbr_partition4;
+        mbr.mbr_partition4 = aux;
+        std::swap(num1, num4);
+    }
+    if (num2 > num3) { //b > c
+        structParticion aux = mbr.mbr_partition2;
+        mbr.mbr_partition2 = mbr.mbr_partition3;
+        mbr.mbr_partition3 = aux;
+        std::swap(num2, num3);
+    }
+    if (num2 > num4) { //b > d
+        structParticion aux = mbr.mbr_partition2;
+        mbr.mbr_partition2 = mbr.mbr_partition4;
+        mbr.mbr_partition4 = aux;
+        std::swap(num2, num4);
+    }
+    if (num3 > num4) { //c > d
+        structParticion aux = mbr.mbr_partition3;
+        mbr.mbr_partition3 = mbr.mbr_partition4;
+        mbr.mbr_partition4 = aux;
+        std::swap(num3, num4);
+    }
+
+    this->reescribir_mbr(mbr);
+}
+
 void fdisk::reescribir_mbr(MBR mbr)
 {
     std::fstream archivo(this->ruta, std::ios::out | std::ios::in | std::ios::binary);
@@ -338,6 +678,40 @@ void fdisk::reescribir_mbr(MBR mbr)
     }
 }
 
+int fdisk::contador_particiones_primarias(MBR mbr) {
+    int contador = 0;
+    if (mbr.mbr_partition1.part_type == 'P')
+        contador++;
+    
+    if (mbr.mbr_partition2.part_type == 'P') 
+        contador++;
+    
+    if (mbr.mbr_partition3.part_type == 'P') 
+        contador++;
+    
+    if (mbr.mbr_partition4.part_type == 'P')
+        contador++;
+
+    if (this->existe_particion_extendida(mbr))
+        contador++;
+    
+    return contador;
+}
+
+bool fdisk::existe_particion_extendida(MBR mbr) {
+    if (mbr.mbr_partition1.part_type == 'E') {
+        return true;
+    } else if (mbr.mbr_partition2.part_type == 'E') {
+        return true;
+    } else if (mbr.mbr_partition3.part_type == 'E') {
+        return true;
+    } else if (mbr.mbr_partition4.part_type == 'E'){
+        return true;
+    }
+    return false;
+}
+
+// Funciones complementarias secundarias
 void fdisk::mostrar_mbr() {
     FILE *arch;
     arch = fopen(ruta.c_str(), "rb");
@@ -346,7 +720,7 @@ void fdisk::mostrar_mbr() {
         return;
     }
     MBR mbr;
-    std::cout << "Despues de insertar el mbr: " << std::endl;
+    //std::cout << "Despues de insertar el mbr: " << std::endl;
     fread(&mbr, sizeof(MBR), 1, arch);
     while (!feof(arch))
     {
@@ -373,36 +747,6 @@ void fdisk::mostrar_particion(structParticion particion) {
     std::cout << "Start: " << particion.part_start << std::endl;
     std::cout << "Size: " << particion.part_s << std::endl;
     std::cout << "Name: " << particion.part_name << std::endl;
-}
-
-int fdisk::contador_particiones_primarias(MBR mbr) {
-    int contador = 0;
-    if (mbr.mbr_partition1.part_type == 'P')
-        contador++;
-    
-    if (mbr.mbr_partition2.part_type == 'P') 
-        contador++;
-    
-    if (mbr.mbr_partition3.part_type == 'P') 
-        contador++;
-    
-    if (mbr.mbr_partition4.part_type == 'P')
-        contador++;
-    
-    return contador;
-}
-
-bool fdisk::existe_particion_extendida(MBR mbr) {
-    if (mbr.mbr_partition1.part_type == 'E') {
-        return true;
-    } else if (mbr.mbr_partition2.part_type == 'E') {
-        return true;
-    } else if (mbr.mbr_partition3.part_type == 'E') {
-        return true;
-    } else if (mbr.mbr_partition4.part_type == 'E'){
-        return true;
-    }
-    return false;
 }
 
 std::string fdisk::toLower_fdisk(std::string texto) {

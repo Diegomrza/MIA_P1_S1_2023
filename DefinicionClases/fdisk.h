@@ -5,6 +5,7 @@
 #include <regex>
 #include "../DefinicionStructs/structParticion.h"
 #include "../DefinicionStructs/structMBR.h"
+#include "../DefinicionStructs/structEBR.h"
 #include "../DefinicionClases/comentario.h"
 
 class fdisk
@@ -35,7 +36,9 @@ private:
 
     void eliminar_particion();
     void modificar_particion(structParticion &);
+    void ordenar_particiones();
 
+    void escribir_ebr(EBR);
     void reescribir_mbr(MBR);
     void mostrar_mbr();
     void mostrar_particion(structParticion);
