@@ -35,10 +35,21 @@ private:
     void crear_particion_logica(MBR);
 
     void eliminar_particion();
-    void modificar_particion(structParticion &);
-    void ordenar_particiones();
+    bool eliminar_particion_primaria(MBR &);
+    bool eliminar_particion_extendida(MBR &);
+    bool eliminar_particion_logica(MBR &);
+    
+    void modificar_particion();
+    void modificar_particion_primaria(MBR &);
+    void modificar_particion_extendida(MBR &);
+    void modificar_particion_logica(MBR &);
+    void vaciar_particiones_logicas(MBR &, int, int);
 
-    void escribir_ebr(EBR);
+    void ordenar_particiones();
+    void ordenar_particiones_primarias(MBR &);
+    void ordenar_particiones_logicas(MBR &);
+
+    void reescribir_ebr(EBR);
     void reescribir_mbr(MBR);
     void mostrar_mbr();
     void mostrar_particion(structParticion);

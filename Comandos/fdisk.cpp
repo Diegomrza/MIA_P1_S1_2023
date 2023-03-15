@@ -1,7 +1,6 @@
 #include "../DefinicionClases/fdisk.h"
 
-void fdisk::analizador_fdisk(std::string texto)
-{
+void fdisk::analizador_fdisk(std::string texto) {
     bool bandera = true;  // path
     bool bandera2 = true; // name
     bool bandera3 = true; // size
@@ -227,12 +226,13 @@ void fdisk::administrador_fdisk() {
     if (this->eliminar.compare("") != 0) { // delete
         this->eliminar_particion();
     } else if (this->agregar != 0) { // add
-        // this->modificar_particion();
+        this->modificar_particion();
     } else { // make
         this->crear_particion();
     }
 }
 
+//Creación
 void fdisk::crear_particion() {
     /**
      * Pasos:
@@ -515,36 +515,36 @@ void fdisk::crear_particion_extendida(MBR mbr) {
 
     this->crear_particion_primaria(mbr);
 
+    MBR mbr2;
     FILE *arch = fopen(this->ruta.c_str(), "rb+");
     if (arch == NULL) {
         std::cout << "Error: No existe el disco." << std::endl;
         return;
     }
     fseek(arch, 0, SEEK_SET);
-    fread(&mbr, sizeof(MBR), 1, arch);
+    fread(&mbr2, sizeof(MBR), 1, arch);
 
     EBR ebr = {'0', 'F', 0, sizeof(EBR), -1, "EBR"}; // EBR principal de la partición extendida
     int inicio = 0; // Para indicar en que parte del disco se encuentra el EBR
 
     while (!feof(arch)) {
-        if (mbr.mbr_size != 0) {
-            if (mbr.mbr_partition1.part_type == 'E') {
-                ebr.part_start = inicio = mbr.mbr_partition1.part_start;
-            } else if (mbr.mbr_partition2.part_type == 'E') {
-                ebr.part_start = inicio = mbr.mbr_partition2.part_start;
-            } else if (mbr.mbr_partition3.part_type == 'E') {
-                ebr.part_start = inicio = mbr.mbr_partition3.part_start;
-            } else if (mbr.mbr_partition4.part_type == 'E') {
-                ebr.part_start = inicio = mbr.mbr_partition4.part_start;
+        if (mbr2.mbr_size != 0) {
+            if (mbr2.mbr_partition1.part_type == 'E') {
+                ebr.part_start = inicio = mbr2.mbr_partition1.part_start;
+            } else if (mbr2.mbr_partition2.part_type == 'E') {
+                ebr.part_start = inicio = mbr2.mbr_partition2.part_start;
+            } else if (mbr2.mbr_partition3.part_type == 'E') {
+                ebr.part_start = inicio = mbr2.mbr_partition3.part_start;
+            } else if (mbr2.mbr_partition4.part_type == 'E') {
+                ebr.part_start = inicio = mbr2.mbr_partition4.part_start;
             }
             break;
         }
-        fread(&mbr, sizeof(MBR), 1, arch);
+        fread(&mbr2, sizeof(MBR), 1, arch);
     }
 
     std::fstream archivo(this->ruta, std::ios::out | std::ios::in | std::ios::binary);
-    if (archivo.is_open())
-    {
+    if (archivo.is_open()) {
         archivo.seekp(inicio);
         archivo.write((char *)&ebr, sizeof(EBR));
         archivo.close();
@@ -557,8 +557,46 @@ void fdisk::crear_particion_logica(MBR mbr) {
         return;
     }
 
+    /*
+        1. Buscar el EBR principal de la partición extendida.
+        2. Verificar si el primer EBR está libre.
+        3. Si no está libre, recorrer a partir de ese.
+    */
+
+    structParticion *aux;
+
+    if (mbr.mbr_partition1.part_type == 'E') {
+        aux = &mbr.mbr_partition1;
+    } else if (mbr.mbr_partition2.part_type == 'E') {
+        aux = &mbr.mbr_partition2;
+    } else if (mbr.mbr_partition3.part_type == 'E') {
+        aux = &mbr.mbr_partition3;
+    } else if (mbr.mbr_partition4.part_type == 'E') {
+        aux = &mbr.mbr_partition4;
+    }
+
+    EBR arreglo[24];
+
+    std::fstream archivo(this->ruta, std::ios::out | std::ios::in | std::ios::binary);
+    if (archivo.is_open()) {
+        EBR ebr;
+        archivo.seekp(aux->part_start);
+
+        archivo.read((char *)&ebr, sizeof(EBR));
+        while (!archivo.eof()) {
+            std::cout<<"EBR: "<<std::endl;
+            std::cout<<"Nombre: "<<ebr.part_name<<std::endl;
+            archivo.read((char *)&ebr, sizeof(EBR));
+        }
+        
+        
+    }
+    
+
+
 }
 
+//Eliminación
 void fdisk::eliminar_particion() {
     // Busqueda de la partición que se desea eliminar.
     FILE *arch = fopen(this->ruta.c_str(), "rb");
@@ -571,14 +609,12 @@ void fdisk::eliminar_particion() {
     while (!feof(arch)) {
         if (mbr.mbr_size != 0) {
             structParticion aux;
-            if (strcmp(this->nombre.c_str(), mbr.mbr_partition1.part_name) == 0) {
-                mbr.mbr_partition1 = aux;
-            } else if (strcmp(this->nombre.c_str(), mbr.mbr_partition2.part_name) == 0) {
-                mbr.mbr_partition2 = aux;
-            } else if (strcmp(this->nombre.c_str(), mbr.mbr_partition3.part_name) == 0) {
-                mbr.mbr_partition3 = aux;
-            } else if (strcmp(this->nombre.c_str(), mbr.mbr_partition4.part_name) == 0) {
-                mbr.mbr_partition4 = aux;
+            if (this->eliminar_particion_primaria(mbr)) {
+                std::cout<<"Partición primaria "<<this->nombre<<"eliminada."<<std::endl;
+            } else if (this->eliminar_particion_extendida(mbr)) {
+                std::cout<<"Partición extendida "<<this->nombre<<"eliminada."<<std::endl;
+            } else if (this->eliminar_particion_logica(mbr)) {
+                std::cout<<"Partición lógica "<<this->nombre<<"eliminada."<<std::endl;
             } else {
                 std::cout << "Error: La partición que desea eliminar no existe en este disco ." << std::endl;
                 return;
@@ -589,13 +625,72 @@ void fdisk::eliminar_particion() {
     }
 }
 
-void fdisk::modificar_particion(structParticion &particion) {
-    particion.part_status = '0';
-    particion.part_type = this->tipo[0];
-    particion.part_fit = this->ajuste[0];
-    particion.part_start = 0;
-    particion.part_s = this->tamanio;
-    strcpy(particion.part_name, this->nombre.c_str());
+bool fdisk::eliminar_particion_primaria(MBR &mbr){
+    structParticion aux;
+    if ((strcmp(this->nombre.c_str(), mbr.mbr_partition1.part_name) == 0) && mbr.mbr_partition1.part_type == 'P'){
+        mbr.mbr_partition1 = aux;
+    } else if ((strcmp(this->nombre.c_str(), mbr.mbr_partition2.part_name) == 0) && mbr.mbr_partition2.part_type == 'P') {
+        mbr.mbr_partition2 = aux;
+    } else if ((strcmp(this->nombre.c_str(), mbr.mbr_partition3.part_name) == 0) && mbr.mbr_partition3.part_type == 'P') {
+        mbr.mbr_partition3 = aux;
+    } else if ((strcmp(this->nombre.c_str(), mbr.mbr_partition4.part_name) == 0) && mbr.mbr_partition4.part_type == 'P') {
+        mbr.mbr_partition4 = aux;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+bool fdisk::eliminar_particion_extendida(MBR &mbr) {
+    structParticion aux;
+    if ((strcmp(this->nombre.c_str(), mbr.mbr_partition1.part_name) == 0) && mbr.mbr_partition1.part_type == 'E'){
+        this->vaciar_particiones_logicas(mbr, mbr.mbr_partition1.part_start, mbr.mbr_partition1.part_s);
+        mbr.mbr_partition1 = aux;
+    } else if ((strcmp(this->nombre.c_str(), mbr.mbr_partition2.part_name) == 0) && mbr.mbr_partition2.part_type == 'E') {
+        this->vaciar_particiones_logicas(mbr, mbr.mbr_partition2.part_start, mbr.mbr_partition2.part_s);
+        mbr.mbr_partition2 = aux;
+    } else if ((strcmp(this->nombre.c_str(), mbr.mbr_partition3.part_name) == 0) && mbr.mbr_partition3.part_type == 'E') {
+        this->vaciar_particiones_logicas(mbr, mbr.mbr_partition3.part_start, mbr.mbr_partition3.part_s);
+        mbr.mbr_partition3 = aux;
+    } else if ((strcmp(this->nombre.c_str(), mbr.mbr_partition4.part_name) == 0) && mbr.mbr_partition4.part_type == 'E') {
+        this->vaciar_particiones_logicas(mbr, mbr.mbr_partition4.part_start, mbr.mbr_partition4.part_s);
+        mbr.mbr_partition4 = aux;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+bool fdisk::eliminar_particion_logica(MBR &mbr) {
+
+    
+    return true;
+}
+
+void fdisk::vaciar_particiones_logicas(MBR &mbr, int inicio, int tamanio) {
+
+}
+
+//Actualización
+void fdisk::modificar_particion() {
+    // particion.part_status = '0';
+    // particion.part_type = this->tipo[0];
+    // particion.part_fit = this->ajuste[0];
+    // particion.part_start = 0;
+    // particion.part_s = this->tamanio;
+    // strcpy(particion.part_name, this->nombre.c_str());
+}
+
+void fdisk::modificar_particion_primaria(MBR &mbr) {
+
+}
+
+void fdisk::modificar_particion_extendida(MBR &mbr) {
+
+}
+
+void fdisk::modificar_particion_logica(MBR &mbr) {
+    
 }
 
 // Funciones complementarias principales.
@@ -667,15 +762,17 @@ void fdisk::ordenar_particiones() {
     this->reescribir_mbr(mbr);
 }
 
-void fdisk::reescribir_mbr(MBR mbr)
-{
+void fdisk::reescribir_mbr(MBR mbr) {
     std::fstream archivo(this->ruta, std::ios::out | std::ios::in | std::ios::binary);
-    if (archivo.is_open())
-    {
+    if (archivo.is_open()) {
         archivo.seekp(0);
         archivo.write((char *)&mbr, sizeof(MBR));
         archivo.close();
     }
+}
+
+void fdisk::reescribir_ebr(EBR ebr) {
+
 }
 
 int fdisk::contador_particiones_primarias(MBR mbr) {
@@ -720,12 +817,10 @@ void fdisk::mostrar_mbr() {
         return;
     }
     MBR mbr;
-    //std::cout << "Despues de insertar el mbr: " << std::endl;
+    
     fread(&mbr, sizeof(MBR), 1, arch);
-    while (!feof(arch))
-    {
-        if (mbr.mbr_size != 0)
-        {
+    while (!feof(arch)) {
+        if (mbr.mbr_size != 0) {
             std::cout << "\nParticion 1: " << std::endl;
             this->mostrar_particion(mbr.mbr_partition1);
             std::cout << "\nParticion 2: " << std::endl;
