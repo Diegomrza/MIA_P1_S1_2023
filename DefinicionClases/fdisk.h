@@ -30,7 +30,7 @@ private:
     void administrador_fdisk();
 
     void crear_particion();
-    void crear_particion_primaria(MBR);
+    bool crear_particion_primaria(MBR);
     void crear_particion_extendida(MBR);
     void crear_particion_logica(MBR);
 
@@ -49,9 +49,10 @@ private:
     void ordenar_particiones_primarias(MBR &);
     void ordenar_particiones_logicas(MBR &);
 
-    void reescribir_ebr(EBR);
+    void reescribir_ebr(EBR, int);
     void reescribir_mbr(MBR);
     void mostrar_mbr();
+    void mostrar_ebr(int);
     void mostrar_particion(structParticion);
 
     // Función inicial
