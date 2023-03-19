@@ -27,31 +27,23 @@ void Grafo::administrador_grafos(std::string tipo, std::string ruta, std::string
 }
 
 std::string Grafo::reporte_mbr(std::string ruta, std::string formato, std::string nombre_archivo) {
-    FILE *archivo;
-    archivo = fopen(ruta.c_str(), "rb");
-    if (archivo == NULL) {
-        std::cout << "Error: no se pudo abrir el archivo." << std::endl;
-        return "";
-    }
-    MBR mbr;
-    fseek(archivo, 0, SEEK_SET);
-    fread(&mbr, sizeof(MBR), 1, archivo);
-    fclose(archivo);
+    std::cout<<"Reporte MBR"<<std::endl;
+    std::cout<<"Ruta: "<<ruta<<std::endl;
+    std::cout<<"Formato: "<<formato<<std::endl;
+    std::cout<<"Nombre: "<<nombre_archivo<<std::endl;
+
+    MBR mbr = this->obtener_mbr(ruta);
 
     return "";
 }
 
 std::string Grafo::reporte_disk(std::string ruta, std::string formato, std::string nombre_archivo) {
-    FILE *archivo;
-    archivo = fopen(ruta.c_str(), "rb");
-    if (archivo == NULL) {
-        std::cout << "Error: no se pudo abrir el archivo." << std::endl;
-        return "";
-    }
-    MBR mbr;
-    fseek(archivo, 0, SEEK_SET);
-    fread(&mbr, sizeof(MBR), 1, archivo);
-    fclose(archivo);
+    std::cout<<"Reporte DISK"<<std::endl;
+    std::cout<<"Ruta: "<<ruta<<std::endl;
+    std::cout<<"Formato: "<<formato<<std::endl;
+    std::cout<<"Nombre: "<<nombre_archivo<<std::endl;
+
+    MBR mbr = this->obtener_mbr(ruta);
 
     int contador_libres = 1;    
 

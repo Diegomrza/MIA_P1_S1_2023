@@ -7,7 +7,7 @@
 #include "../DefinicionStructs/structMBR.h"
 #include "../DefinicionStructs/structEBR.h"
 #include "../DefinicionClases/comentario.h"
-#include "../Z/Cl.cpp"
+
 
 class fdisk
 {

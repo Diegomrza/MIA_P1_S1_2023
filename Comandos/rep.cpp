@@ -29,11 +29,12 @@ void rep::analizador_rep(std::string texto) {
 }
 
 void rep::administrador_rep(std::string tipo_reporte) {
-    //Grafo g();
+    std::smatch aux;
+        std::regex_match(this->path, aux, std::regex("\\w+.(jpg|png|pdf)"));
     if (tipo_reporte=="MBR") {
-
+        Grafo g("MBR",this->path, "png", aux.str());
     } else if (tipo_reporte=="DISK") {
-
+        Grafo g("DISK",this->path, "png", aux.str());
     } else if (tipo_reporte=="INODE") {
 
     } else if (tipo_reporte=="JOURNALING") {

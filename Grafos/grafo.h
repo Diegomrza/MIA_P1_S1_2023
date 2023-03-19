@@ -34,12 +34,13 @@ private:
     std::string reporte_ls(std::string, std::string, std::string);
 
 public:
-    Grafo(std::string, std::string, MBR);
+    Grafo(std::string, std::string, std::string, std::string);
     ~Grafo();
 };
 
-Grafo::Grafo(std::string ruta, std::string formato, MBR mbr)
+Grafo::Grafo(std::string tipo, std::string ruta, std::string formato, std::string nombre)
 {
+    this->administrador_grafos(tipo, ruta, formato, nombre);
     //this->generar_grafo(ruta, formato, mbr);
     //this->generar(ruta, formato, mbr);
 }

@@ -3,4 +3,4 @@ fdisk >path=Disco1.dsk >unit=M >size=9 >name=Particion1 >type=P
 fdisk >path=Disco1.dsk >unit=M >size=4 >name=Particion2 >type=P
 fdisk >path=Disco1.dsk >unit=M >size=6 >name=Particion3 >type=P >fit=FF
 fdisk >path=Disco1.dsk >unit=M >size=9 >name=Particion4 >type=P >fit=FF
-rep >name=mbr >path=/reportes/reporte1.jpg >id=061Disco1
+rep >name=mbr >path=reporte1.jpg >id=061Disco1

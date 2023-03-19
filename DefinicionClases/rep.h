@@ -3,7 +3,7 @@
 
 #include <string>
 #include "../DefinicionStructs/structMBR.h"
-#include "../Grafos/grafo.cpp"
+#include "../Grafos/grafo.h"
 #include <fstream>
 #include <iostream>
 #include <chrono>
