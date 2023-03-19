@@ -1,4 +1,4 @@
-digraph {
+digraph g{
   node [shape=plaintext] ;
   tabla [label=<<table border="1" cellspacing="2">
     <tr>
@@ -6,51 +6,6 @@ digraph {
     <td>     </td>
     <td>P1</td>
     <td>     </td>
-    <td>P2</td>
-    <td>     </td>
-    <td>P3</td>
-    <td>     </td>
-    <td>P4</td>
-    <td>     </td>
-    <td>P5</td>
-    <td>     </td>
-    <td>P6</td>
-    <td>     </td>
-    <td>P7</td>
-    <td>     </td>
-    <td>P8</td>
-    <td>     </td>
-    <td>P9</td>
-    <td>     </td>
-    <td>P10</td>
-    <td>     </td>
-    <td>P11</td>
-    <td>     </td>
-    <td>P12</td>
-    <td>     </td>
-    <td>P13</td>
-    <td>     </td>
-    <td>P14</td>
-    <td>     </td>
-    <td>P15</td>
-    <td>     </td>
-    <td>P16</td>
-    <td>     </td>
-    <td>P17</td>
-    <td>     </td>
-    <td>P18</td>
-    <td>     </td>
-    <td>P19</td>
-    <td>     </td>
-    <td>P20</td>
-    <td>     </td>
-    <td>P21</td>
-    <td>     </td>
-    <td>P22</td>
-    <td>     </td>
-    <td>P23</td>
-    <td>     </td>
     </tr>
-    
-  </table>>] ;
+  </table>>];
 }

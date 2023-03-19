@@ -7,6 +7,7 @@
 #include "../DefinicionStructs/structMBR.h"
 #include "../DefinicionStructs/structEBR.h"
 #include "../DefinicionClases/comentario.h"
+#include "../Z/Cl.cpp"
 
 class fdisk
 {
@@ -29,6 +30,9 @@ private:
 
     void administrador_fdisk();
 
+    bool crear_primaria(MBR);
+    void crear_logica(MBR);
+
     void crear_particion();
     bool crear_particion_primaria(MBR);
     void crear_particion_extendida(MBR);
@@ -45,7 +49,7 @@ private:
     void modificar_particion_logica(MBR &);
     void vaciar_particiones_logicas(MBR &, int, int);
 
-    void ordenar_particiones();
+    MBR ordenar_particiones();
     void ordenar_particiones_primarias(MBR &);
     void ordenar_particiones_logicas(MBR &);
 
